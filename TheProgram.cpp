@@ -13,6 +13,13 @@ using namespace std::chrono;
 bool PRINT_MATRIX = false;
 
 
+////////// Storage of Sparse Matrices////////////////////
+/* To calculate the product of 2 matrices A, B such that C = AB,
+A has been stored in CSR format and B in CSC format.
+This makes the multiplication easier since each row elements of A are multiplied with
+the corresponding elements of each column of B*/
+
+
 ///////////////FUNCTION TO CREATE THE SPARSE MATRICES//////////////
 void populateMatrix(int m, int n, int p, float sp1, float sp2, int* &Adata, int* &Acol, int* &Arowptr, int* &Bdata, int* &Brow, int* &Bcolptr)
 {
@@ -180,6 +187,7 @@ void printMatrix(int **C, int m, int n)
              C[i][j] = tempsum;             
           
          }
+
      }
      auto stop = high_resolution_clock::now();
      auto duration = duration_cast<microseconds>(stop - start);
@@ -187,11 +195,20 @@ void printMatrix(int **C, int m, int n)
   
      if (PRINT_MATRIX)
          printMatrix(C, m, p);
+     
+              
+         /*////////////////////////////////////////////////////////////////////
+         The outermost loop runs for m iterations
+         The middle loop runs for p iterations per each outermost iteration
+         The innermost loops runs for an average of n * max(sp1 , sp2) times per middle loop iteration 
+         {In an arbitrary row of A, there will be (n * sp1) elements on average. Similarly for each column of B}
+         Thus, complexity = O(m * n * p * (sp1 + sp2))
+         ////////////////////////////////////////////////////////////////////*/
          
  }
 
 
-///////////////////////////FUNCTION TO MULTIPLY MATRICES ///////////////////////
+///////////////////////////FUNCTION TO MULTIPLY NORMAL MATRICES ///////////////////////
 /* C = AB */
  void normalMatmult (int m, int n, int p, int* Adata, int* Acol, int* Arowptr, int* Bdata, int* Brow, int* Bcolptr )
  {
@@ -206,6 +223,8 @@ void printMatrix(int **C, int m, int n)
      for(i = 0 ; i < m ; i++)
         C[i] = new int[p]();
      
+     
+     /*Conversion of A from CSR to normal matrix*/
      sum = 0;
      for(i = 0 ; i < m ; i++)
      {
@@ -217,6 +236,7 @@ void printMatrix(int **C, int m, int n)
          }
      }
   
+     /*Conversion of B from CSC to normal matrix*/
      sum = 0;
      for(i = 0 ; i < p ; i++)
      {
@@ -246,6 +266,15 @@ void printMatrix(int **C, int m, int n)
   
      if (PRINT_MATRIX)
          printMatrix(C, m, p);
+     
+     
+              
+         /*////////////////////////////////////////////////////////////////////
+         The outermost loop runs for m iterations
+         The middle loop runs for p iterations per each outermost iteration
+         The innermost loops runs for an average of n times per middle loop iteration 
+         Thus, complexity = O(m * n * p )
+         ////////////////////////////////////////////////////////////////////*/
   
  }
 
@@ -272,5 +301,11 @@ int main()
     sparseMatmult(Res, m, n, p, Adata, Acol, Arowptr, Bdata, Brow, Bcolptr);
  
     normalMatmult(m, n, p, Adata, Acol, Arowptr, Bdata, Brow, Bcolptr);
+    
+    /*////////////////////////////////////////////////////////////////////
+    Complexity of normal MatMult        = O(m * n * p )
+    Complexity of sparse matrix MatMult = O(m * n * p * (sp1 + sp2))
+    So for large enough dimensions and small enough sparsities, this sparse matrix MatMult is expected to have lesser time of execution
+    ////////////////////////////////////////////////////////////////////*/
  
 }
