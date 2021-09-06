@@ -283,11 +283,11 @@ int main()
     int m,n,p;
     float sp1, sp2;
  
-    m=100;
-    n=20;
-    p=100;
-    sp1=0.12;
-    sp2=0.25;
+    cout << "\n Dimensions of matrices" << endl;
+    cin >> m >> n >> p;
+    
+    cout << "\n Sparsities of matrices" << endl;
+    cin >> sp1 >> sp2;    
  
     int *Adata, *Acol, *Arowptr, *Bdata, *Brow, *Bcolptr;
  
